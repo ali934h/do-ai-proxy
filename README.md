@@ -44,15 +44,81 @@ After install, configure your AI tool with:
 | API Key | *(your generated `PROXY_SECRET`)* |
 | Custom Header | `X-Proxy-Secret: YOUR_PROXY_SECRET` |
 
-Example model IDs available on your account:
+---
 
+## Available models
+
+The models below are confirmed to work on a DigitalOcean GitHub Student account (tier 1). Run the script below to check which models are available on your own account — new models are added by DO over time.
+
+### Check available models
+
+```bash
+PROXY_SECRET="YOUR_PROXY_SECRET"
+BASE_URL="https://your.domain/v1"   # or http://YOUR-VPS-IP:4040/v1
+
+for model in \
+  "alibaba-qwen3-32b" \
+  "deepseek-r1-distill-llama-70b" \
+  "deepseek-3.2" \
+  "deepseek-v4-pro" \
+  "deepseek-4-flash" \
+  "gemma-4-31B-it" \
+  "mistral-3-14B" \
+  "llama-4-maverick" \
+  "llama3.3-70b-instruct" \
+  "kimi-k2.5" \
+  "kimi-k2.6" \
+  "minimax-m2.5" \
+  "nvidia-nemotron-3-super-120b" \
+  "qwen3-coder-flash" \
+  "qwen3.5-397b-a17b" \
+  "glm-5" \
+  "openai-gpt-oss-20b" \
+  "openai-gpt-oss-120b" \
+  "arcee-trinity-large-thinking" \
+  "anthropic-claude-haiku-4.5" \
+  "anthropic-claude-4.5-sonnet" \
+  "anthropic-claude-opus-4.7" \
+  "openai-gpt-4o-mini" \
+  "openai-gpt-5"; do
+  result=$(curl -s -X POST "${BASE_URL}/chat/completions" \
+    -H "X-Proxy-Secret: ${PROXY_SECRET}" \
+    -H "Content-Type: application/json" \
+    -d "{\"model\": \"${model}\", \"messages\": [{\"role\": \"user\", \"content\": \"Hi\"}], \"max_completion_tokens\": 5}")
+  if echo "$result" | grep -q "forbidden\|subscription"; then
+    echo "❌  ${model}"
+  elif echo "$result" | grep -q "choices"; then
+    echo "✅  ${model}"
+  else
+    echo "⚠️  ${model}  →  $(echo $result | head -c 80)"
+  fi
+done
 ```
-deepseek-3.2
-minimax-m2.5
-qwen3-coder-flash
-gemma-4-31B-it
-llama3.3-70b-instruct
-```
+
+> To add a new model to the check list, simply add its ID to the `for` loop above.
+
+### Confirmed available models (GitHub Student / tier 1 — June 2026)
+
+| Model ID | Use case | DO price (in / out per 1M) |
+|----------|----------|---------------------------|
+| `deepseek-3.2` | General, coding | $0.50 / $1.60 |
+| `deepseek-v4-pro` | Frontier, complex tasks | $1.74 / $3.48 |
+| `deepseek-4-flash` | Fast, low cost | — |
+| `deepseek-r1-distill-llama-70b` | Reasoning, math | $0.99 / $0.99 |
+| `minimax-m2.5` | General, coding | $0.30 / $1.20 |
+| `kimi-k2.5` | General | $0.50 / $2.70 |
+| `kimi-k2.6` | Frontier | $0.95 / $4.00 |
+| `qwen3-coder-flash` | Coding agent | $0.45 / $1.70 |
+| `qwen3.5-397b-a17b` | Powerful general | $0.55 / $3.50 |
+| `alibaba-qwen3-32b` | General | $0.25 / $0.55 |
+| `gemma-4-31B-it` | Light, fast | $0.18 / $0.50 |
+| `mistral-3-14B` | Light, fast | $0.20 / $0.20 |
+| `llama-4-maverick` | General | $0.25 / $0.87 |
+| `llama3.3-70b-instruct` | General | $0.65 / $0.65 |
+| `nvidia-nemotron-3-super-120b` | General | $0.30 / $0.65 |
+| `glm-5` | Coding, general | $1.00 / $3.20 |
+| `openai-gpt-oss-20b` | Ultra cheap | $0.05 / $0.45 |
+| `openai-gpt-oss-120b` | Cheap, capable | $0.10 / $0.70 |
 
 ---
 
