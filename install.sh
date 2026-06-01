@@ -8,6 +8,7 @@ REPO_URL="https://github.com/ali934h/do-ai-proxy.git"
 PROJECT="do-ai-proxy"
 INSTALL_DIR="/root/${PROJECT}"
 NGINX_CONF="/etc/nginx/conf.d/${PROJECT}.conf"
+DO_INFERENCE_URL="https://inference.do-ai.run"
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -186,6 +187,27 @@ prompt_port() {
   done
 }
 
+# ── validate DO API key ───────────────────────────────────────────────────────
+
+validate_do_api_key() {
+  local key="$1"
+  info "Validating DO API key against inference.do-ai.run ..."
+  local http_code
+  http_code=$(curl -s -o /dev/null -w "%{http_code}" \
+    -H "Authorization: Bearer ${key}" \
+    "${DO_INFERENCE_URL}/v1/models")
+  if [[ "${http_code}" == "200" ]]; then
+    ok "API key is valid."
+    return 0
+  elif [[ "${http_code}" == "401" || "${http_code}" == "403" ]]; then
+    err "API key rejected by DigitalOcean (HTTP ${http_code}). Please check your key and try again."
+    return 1
+  else
+    warn "Could not validate key (HTTP ${http_code}). Proceeding anyway — check connectivity if issues arise."
+    return 0
+  fi
+}
+
 # ── collect inputs ───────────────────────────────────────────────────────────
 
 collect_inputs() {
@@ -193,7 +215,13 @@ collect_inputs() {
   echo -e "${YELLOW}All inputs are shown in plain text so you can verify what you typed.${NC}\n"
 
   echo -e "${BOLD}DigitalOcean Inference API key${NC} (doo_v1_...)"
-  DO_API_KEY=$(prompt_nonempty "DO_API_KEY")
+  while true; do
+    DO_API_KEY=$(prompt_nonempty "DO_API_KEY")
+    if validate_do_api_key "${DO_API_KEY}"; then
+      break
+    fi
+    warn "Please enter a valid API key."
+  done
 
   echo -e "\n${BOLD}Use a domain name?${NC} (requires a Cloudflare origin certificate already on this server)"
   echo -e "${CYAN}Note: if you use Cloudflare proxy (orange cloud), the port will be fixed to 443.${NC}"
