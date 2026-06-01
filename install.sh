@@ -195,10 +195,9 @@ collect_inputs() {
   echo -e "${BOLD}DigitalOcean Inference API key${NC} (doo_v1_...)"
   DO_API_KEY=$(prompt_nonempty "DO_API_KEY")
 
-  echo -e "\n${BOLD}Proxy port${NC} (the port Nginx will listen on)"
-  PORT=$(prompt_port 4040)
-
   echo -e "\n${BOLD}Use a domain name?${NC} (requires a Cloudflare origin certificate already on this server)"
+  echo -e "${CYAN}Note: if you use Cloudflare proxy (orange cloud), the port will be fixed to 443.${NC}"
+  echo -e "${CYAN}      If you use DNS-only (grey cloud) or bare IP, you can choose any port.${NC}"
   USE_DOMAIN="n"
   while true; do
     read -r -p "$(echo -e "Use domain? [y/N]: ")" USE_DOMAIN
@@ -213,10 +212,31 @@ collect_inputs() {
   SSL_CERT=""
   SSL_KEY=""
   SSL_DIR=""
+  PORT=""
 
   if [[ "${USE_DOMAIN,,}" =~ ^y ]]; then
     echo -e "\n${BOLD}Domain${NC} (e.g. proxy.example.com — must already point at this server)"
     HOST=$(prompt_nonempty "HOST")
+
+    echo -e "\n${BOLD}Is Cloudflare proxy (orange cloud) enabled for this domain?${NC}"
+    echo -e "${CYAN}If yes, port will be forced to 443. If no (grey cloud), you can choose any port.${NC}"
+    CF_PROXY="y"
+    while true; do
+      read -r -p "$(echo -e "Cloudflare proxy enabled? [Y/n]: ")" CF_PROXY
+      CF_PROXY="${CF_PROXY:-y}"
+      case "${CF_PROXY,,}" in
+        y|yes|n|no) break ;;
+        *) warn "Please answer y or n." ;;
+      esac
+    done
+
+    if [[ "${CF_PROXY,,}" =~ ^y ]]; then
+      PORT="443"
+      info "Port forced to 443 (Cloudflare proxy only supports standard ports)"
+    else
+      echo -e "\n${BOLD}Proxy port${NC} (the port Nginx will listen on)"
+      PORT=$(prompt_port 4040)
+    fi
 
     echo -e "\n${BOLD}Cloudflare origin certificate${NC}"
     echo -e "${CYAN}Tip: Cloudflare dashboard → SSL/TLS → Origin Server → Create Certificate.${NC}"
@@ -224,6 +244,9 @@ collect_inputs() {
     SSL_CERT=$(prompt_file "Path to origin .pem file")
     SSL_KEY=$(prompt_file  "Path to origin .key file")
     SSL_DIR=$(dirname "${SSL_CERT}")
+  else
+    echo -e "\n${BOLD}Proxy port${NC} (the port Nginx will listen on)"
+    PORT=$(prompt_port 4040)
   fi
 
   # Generate a secure random secret — user does not need to set this manually
@@ -294,7 +317,6 @@ write_nginx_conf() {
     local template="${INSTALL_DIR}/nginx/do-ai-proxy-https.conf"
     sed \
       -e "s|__HOST__|${HOST}|g" \
-      -e "s|__PORT__|${PORT}|g" \
       -e "s|__SSL_FULLCHAIN__|${SSL_DIR}/fullchain.pem|g" \
       -e "s|__SSL_KEY__|${SSL_KEY}|g" \
       -e "s|__DO_API_KEY__|${DO_API_KEY}|g" \
@@ -327,27 +349,27 @@ success_message() {
   echo -e "${BOLD}${GREEN}      do-ai-proxy is ready!             ${NC}"
   echo -e "${BOLD}${GREEN}========================================${NC}"
 
+  local base_url=""
   if [[ "${USE_DOMAIN,,}" =~ ^y ]]; then
-    echo -e "  Base URL     : https://${HOST}:${PORT}/v1"
+    if [[ "${PORT}" == "443" ]]; then
+      base_url="https://${HOST}/v1"
+    else
+      base_url="https://${HOST}:${PORT}/v1"
+    fi
   else
     local ip
     ip=$(curl -fsSL https://ifconfig.me 2>/dev/null || hostname -I | awk '{print $1}')
-    echo -e "  Base URL     : http://${ip}:${PORT}/v1"
+    base_url="http://${ip}:${PORT}/v1"
   fi
 
+  echo -e "  Base URL     : ${base_url}"
   echo -e "  PROXY_SECRET : ${PROXY_SECRET}"
   echo
   echo -e "${BOLD}Use in Cline / Continue / Copilot:${NC}"
-  echo -e "  Provider  : OpenAI Compatible"
-  if [[ "${USE_DOMAIN,,}" =~ ^y ]]; then
-    echo -e "  Base URL  : https://${HOST}:${PORT}/v1"
-  else
-    local ip
-    ip=$(curl -fsSL https://ifconfig.me 2>/dev/null || hostname -I | awk '{print $1}')
-    echo -e "  Base URL  : http://${ip}:${PORT}/v1"
-  fi
-  echo -e "  API Key   : ${PROXY_SECRET}"
-  echo -e "  Header    : X-Proxy-Secret = ${PROXY_SECRET}"
+  echo -e "  Provider       : OpenAI Compatible"
+  echo -e "  Base URL       : ${base_url}"
+  echo -e "  API Key        : ${PROXY_SECRET}"
+  echo -e "  Custom Header  : X-Proxy-Secret = ${PROXY_SECRET}"
   echo
   echo -e "${BOLD}Useful commands:${NC}"
   echo -e "  nginx -t                          # test config"
