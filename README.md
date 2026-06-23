@@ -68,32 +68,43 @@ The script will:
 
 ### Confirmed available models (GitHub Student / tier 1 — June 2026)
 
-| Model ID | Use case | DO price (in / out per 1M) |
-|----------|----------|---------------------------|
-| `deepseek-3.2` | General, coding | $0.50 / $1.60 |
-| `deepseek-v4-pro` | Frontier, complex tasks | $1.74 / $3.48 |
-| `deepseek-4-flash` | Fast, low cost | — |
-| `deepseek-r1-distill-llama-70b` | Reasoning, math | $0.99 / $0.99 |
-| `minimax-m2.5` | General, coding | $0.30 / $1.20 |
-| `kimi-k2.5` | General | $0.50 / $2.70 |
-| `kimi-k2.6` | Frontier | $0.95 / $4.00 |
-| `qwen3-coder-flash` | Coding agent | $0.45 / $1.70 |
-| `qwen3.5-397b-a17b` | Powerful general | $0.55 / $3.50 |
-| `alibaba-qwen3-32b` | General | $0.25 / $0.55 |
-| `gemma-4-31B-it` | Light, fast | $0.18 / $0.50 |
-| `mistral-3-14B` | Light, fast | $0.20 / $0.20 |
-| `llama-4-maverick` | General | $0.25 / $0.87 |
-| `llama3.3-70b-instruct` | General | $0.65 / $0.65 |
-| `nvidia-nemotron-3-super-120b` | General | $0.30 / $0.65 |
-| `glm-5` | Coding, general | $1.00 / $3.20 |
-| `glm-5.2` | Coding, general | — |
-| `mimo-v2.5` | General | — |
-| `mimo-v2.5-pro` | General | — |
-| `nemotron-3-nano-omni` | Multimodal, light | — |
-| `nemotron-3-ultra-550b` | Frontier | — |
-| `nemotron-nano-12b-v2-vl` | Vision, light | — |
-| `openai-gpt-oss-20b` | Ultra cheap | $0.05 / $0.45 |
-| `openai-gpt-oss-120b` | Cheap, capable | $0.10 / $0.70 |
+> Pricing source: [DO Inference Pricing](https://docs.digitalocean.com/products/inference/details/pricing/) — last verified June 2026.  
+> Prices are per 1M tokens. `—` means not listed separately on the pricing page.
+
+| Model ID | Use case | Input (per 1M) | Output (per 1M) |
+|----------|----------|---------------:|----------------:|
+| `alibaba-qwen3-32b` | General | $0.25 | $0.55 |
+| `deepseek-3.2` | General, coding | $0.50 | $1.60 |
+| `deepseek-4-flash` | Fast, low cost | $0.14 | $0.28 |
+| `deepseek-r1-distill-llama-70b` | Reasoning, math | $0.99 | $0.99 |
+| `deepseek-v4-pro` | Frontier, complex tasks | $1.74 | $3.48 |
+| `gemma-4-31B-it` | Light, fast | $0.18 | $0.50 |
+| `glm-5` | Coding, general | $1.00 | $3.20 |
+| `glm-5.2` | Coding, general | — | — |
+| `kimi-k2.5` | General | $0.50 | $2.70 |
+| `kimi-k2.6` | Frontier | $0.95 | $4.00 |
+| `llama-4-maverick` | General | $0.25 | $0.87 |
+| `llama3.3-70b-instruct` | General | $0.65 | $0.65 |
+| `mimo-v2.5` | Reasoning, general | $0.14 | $0.28 |
+| `mimo-v2.5-pro` | Reasoning, frontier | $0.80 | $3.00 |
+| `minimax-m2.5` | General, coding | $0.30 | $1.20 |
+| `mistral-3-14B` | Light, fast | $0.20 | $0.20 |
+| `nemotron-3-nano-omni` | Multimodal, light | $0.50 | $0.90 |
+| `nemotron-3-ultra-550b` | Frontier | $0.90 | $1.70 |
+| `nemotron-nano-12b-v2-vl` | Vision, light | $0.20 | $0.60 |
+| `nvidia-nemotron-3-super-120b` | General | $0.30 | $0.65 |
+| `openai-gpt-oss-20b` | Ultra cheap | $0.05 | $0.45 |
+| `openai-gpt-oss-120b` | Cheap, capable | $0.10 | $0.70 |
+| `qwen3-coder-flash` | Coding agent | $0.45 | $1.70 |
+| `qwen3.5-397b-a17b` | Powerful general | $0.55 | $3.50 |
+| `router:general` | Auto-routes by task | free* | free* |
+| `router:knowledge-base-document` | Auto-routes by task | free* | free* |
+| `router:software-engineering` | Auto-routes by task | free* | free* |
+| `router:writing` | Auto-routes by task | free* | free* |
+
+> \* Routers have no additional cost during public preview. You are billed for whichever model the router selects per request.
+
+> **Off-peak discount (05:00–11:00 UTC):** `kimi-k2.5` → $0.35 / $1.89 &nbsp;|&nbsp; `minimax-m2.5` → $0.21 / $0.84
 
 ---
 
