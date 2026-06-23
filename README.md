@@ -48,54 +48,23 @@ After install, configure your AI tool with:
 
 ## Available models
 
-The models below are confirmed to work on a DigitalOcean GitHub Student account (tier 1). Run the script below to check which models are available on your own account — new models are added by DO over time.
+DigitalOcean regularly adds new models. The list of models accessible to you depends on your account subscription tier.
 
 ### Check available models
 
-```bash
-PROXY_SECRET="YOUR_PROXY_SECRET"
-BASE_URL="https://your.domain/v1"   # or http://YOUR-VPS-IP:4040/v1
+Run this script on your VPS to dynamically fetch all DO models and test which ones your account can actually use:
 
-for model in \
-  "alibaba-qwen3-32b" \
-  "deepseek-r1-distill-llama-70b" \
-  "deepseek-3.2" \
-  "deepseek-v4-pro" \
-  "deepseek-4-flash" \
-  "gemma-4-31B-it" \
-  "mistral-3-14B" \
-  "llama-4-maverick" \
-  "llama3.3-70b-instruct" \
-  "kimi-k2.5" \
-  "kimi-k2.6" \
-  "minimax-m2.5" \
-  "nvidia-nemotron-3-super-120b" \
-  "qwen3-coder-flash" \
-  "qwen3.5-397b-a17b" \
-  "glm-5" \
-  "openai-gpt-oss-20b" \
-  "openai-gpt-oss-120b" \
-  "arcee-trinity-large-thinking" \
-  "anthropic-claude-haiku-4.5" \
-  "anthropic-claude-4.5-sonnet" \
-  "anthropic-claude-opus-4.7" \
-  "openai-gpt-4o-mini" \
-  "openai-gpt-5"; do
-  result=$(curl -s -X POST "${BASE_URL}/chat/completions" \
-    -H "X-Proxy-Secret: ${PROXY_SECRET}" \
-    -H "Content-Type: application/json" \
-    -d "{\"model\": \"${model}\", \"messages\": [{\"role\": \"user\", \"content\": \"Hi\"}], \"max_completion_tokens\": 5}")
-  if echo "$result" | grep -q "forbidden\|subscription"; then
-    echo "❌  ${model}"
-  elif echo "$result" | grep -q "choices"; then
-    echo "✅  ${model}"
-  else
-    echo "⚠️  ${model}  →  $(echo $result | head -c 80)"
-  fi
-done
+```bash
+bash /root/do-ai-proxy/models.sh
 ```
 
-> To add a new model to the check list, simply add its ID to the `for` loop above.
+The script will:
+
+1. Fetch all models from the DO Inference API
+2. Test each one through your proxy with a minimal request
+3. Report `✅` (available), `❌` (subscription required), `⚠️` (not a chat model), or `⏱️` (timeout)
+4. If any models timed out, ask whether to retry them
+5. Print a final list of all available models
 
 ### Confirmed available models (GitHub Student / tier 1 — June 2026)
 
@@ -117,6 +86,12 @@ done
 | `llama3.3-70b-instruct` | General | $0.65 / $0.65 |
 | `nvidia-nemotron-3-super-120b` | General | $0.30 / $0.65 |
 | `glm-5` | Coding, general | $1.00 / $3.20 |
+| `glm-5.2` | Coding, general | — |
+| `mimo-v2.5` | General | — |
+| `mimo-v2.5-pro` | General | — |
+| `nemotron-3-nano-omni` | Multimodal, light | — |
+| `nemotron-3-ultra-550b` | Frontier | — |
+| `nemotron-nano-12b-v2-vl` | Vision, light | — |
 | `openai-gpt-oss-20b` | Ultra cheap | $0.05 / $0.45 |
 | `openai-gpt-oss-120b` | Cheap, capable | $0.10 / $0.70 |
 
@@ -292,11 +267,12 @@ All parameters are passed through to DigitalOcean unchanged. The proxy only inje
 ## Daily commands
 
 ```bash
-nginx -t                              # test config
-systemctl reload nginx                # reload nginx
-cat /etc/nginx/conf.d/do-ai-proxy.conf  # view active config
-bash /root/do-ai-proxy/update.sh      # pull latest and reload
-bash /root/do-ai-proxy/uninstall.sh   # remove everything
+nginx -t                                  # test config
+systemctl reload nginx                    # reload nginx
+cat /etc/nginx/conf.d/do-ai-proxy.conf   # view active config
+bash /root/do-ai-proxy/models.sh          # check available models
+bash /root/do-ai-proxy/update.sh          # pull latest and reload
+bash /root/do-ai-proxy/uninstall.sh       # remove everything
 ```
 
 ## Security
