@@ -69,37 +69,38 @@ The script will:
 ### Confirmed available models (GitHub Student / tier 1 — June 2026)
 
 > Pricing source: [DO Inference Pricing](https://docs.digitalocean.com/products/inference/details/pricing/) — last verified June 2026.  
-> Prices are per 1M tokens. `—` means not listed separately on the pricing page.
+> Prices are per 1M tokens. `—` means not listed separately on the pricing page.  
+> Sorted by coding capability (strongest first).
 
 | Model ID | Use case | Input (per 1M) | Output (per 1M) |
 |----------|----------|---------------:|----------------:|
-| `alibaba-qwen3-32b` | General | $0.25 | $0.55 |
-| `deepseek-3.2` | General, coding | $0.50 | $1.60 |
-| `deepseek-4-flash` | Fast, low cost | $0.14 | $0.28 |
-| `deepseek-r1-distill-llama-70b` | Reasoning, math | $0.99 | $0.99 |
 | `deepseek-v4-pro` | Frontier, complex tasks | $1.74 | $3.48 |
-| `gemma-4-31B-it` | Light, fast | $0.18 | $0.50 |
-| `glm-5` | Coding, general | $1.00 | $3.20 |
-| `glm-5.2` | Coding, general | — | — |
-| `kimi-k2.5` | General | $0.50 | $2.70 |
 | `kimi-k2.6` | Frontier | $0.95 | $4.00 |
-| `llama-4-maverick` | General | $0.25 | $0.87 |
-| `llama3.3-70b-instruct` | General | $0.65 | $0.65 |
-| `mimo-v2.5` | Reasoning, general | $0.14 | $0.28 |
-| `mimo-v2.5-pro` | Reasoning, frontier | $0.80 | $3.00 |
-| `minimax-m2.5` | General, coding | $0.30 | $1.20 |
-| `mistral-3-14B` | Light, fast | $0.20 | $0.20 |
-| `nemotron-3-nano-omni` | Multimodal, light | $0.50 | $0.90 |
+| `qwen3.5-397b-a17b` | Powerful general | $0.55 | $3.50 |
 | `nemotron-3-ultra-550b` | Frontier | $0.90 | $1.70 |
-| `nemotron-nano-12b-v2-vl` | Vision, light | $0.20 | $0.60 |
-| `nvidia-nemotron-3-super-120b` | General | $0.30 | $0.65 |
-| `openai-gpt-oss-20b` | Ultra cheap | $0.05 | $0.45 |
 | `openai-gpt-oss-120b` | Cheap, capable | $0.10 | $0.70 |
 | `qwen3-coder-flash` | Coding agent | $0.45 | $1.70 |
-| `qwen3.5-397b-a17b` | Powerful general | $0.55 | $3.50 |
+| `deepseek-3.2` | General, coding | $0.50 | $1.60 |
+| `deepseek-r1-distill-llama-70b` | Reasoning, math | $0.99 | $0.99 |
+| `kimi-k2.5` | General | $0.50 | $2.70 |
+| `mimo-v2.5-pro` | Reasoning, frontier | $0.80 | $3.00 |
+| `glm-5` | Coding, general | $1.00 | $3.20 |
+| `glm-5.2` | Coding, general | — | — |
+| `nvidia-nemotron-3-super-120b` | General | $0.30 | $0.65 |
+| `llama-4-maverick` | General | $0.25 | $0.87 |
+| `alibaba-qwen3-32b` | General | $0.25 | $0.55 |
+| `minimax-m2.5` | General, coding | $0.30 | $1.20 |
+| `deepseek-4-flash` | Fast, low cost | $0.14 | $0.28 |
+| `mimo-v2.5` | Reasoning, general | $0.14 | $0.28 |
+| `nemotron-3-nano-omni` | Multimodal, light | $0.50 | $0.90 |
+| `llama3.3-70b-instruct` | General | $0.65 | $0.65 |
+| `openai-gpt-oss-20b` | Ultra cheap | $0.05 | $0.45 |
+| `gemma-4-31B-it` | Light, fast | $0.18 | $0.50 |
+| `mistral-3-14B` | Light, fast | $0.20 | $0.20 |
+| `nemotron-nano-12b-v2-vl` | Vision, light | $0.20 | $0.60 |
+| `router:software-engineering` | Auto-routes by task | free* | free* |
 | `router:general` | Auto-routes by task | free* | free* |
 | `router:knowledge-base-document` | Auto-routes by task | free* | free* |
-| `router:software-engineering` | Auto-routes by task | free* | free* |
 | `router:writing` | Auto-routes by task | free* | free* |
 
 > \* Routers have no additional cost during public preview. You are billed for whichever model the router selects per request.
@@ -130,7 +131,7 @@ const client = new OpenAI({
 });
 
 const response = await client.chat.completions.create({
-  model: "deepseek-3.2",
+  model: "deepseek-v4-pro",
   messages: [
     { role: "system", content: "You are a helpful assistant." },
     { role: "user",   content: "Hello!" },
@@ -146,7 +147,7 @@ console.log(response.choices[0].message.content);
 
 ```ts
 const stream = await client.chat.completions.create({
-  model: "deepseek-3.2",
+  model: "deepseek-v4-pro",
   messages: [{ role: "user", content: "Write a short poem." }],
   stream: true,
   max_completion_tokens: 512,
@@ -167,7 +168,7 @@ const res = await fetch("https://your.domain/v1/chat/completions", {
     "X-Proxy-Secret": "YOUR_PROXY_SECRET",
   },
   body: JSON.stringify({
-    model: "deepseek-3.2",
+    model: "deepseek-v4-pro",
     messages: [{ role: "user", content: "Hello!" }],
     max_completion_tokens: 512,
   }),
@@ -187,7 +188,7 @@ const res = await fetch("https://your.domain/v1/chat/completions", {
     "X-Proxy-Secret": "YOUR_PROXY_SECRET",
   },
   body: JSON.stringify({
-    model: "deepseek-3.2",
+    model: "deepseek-v4-pro",
     messages: [{ role: "user", content: "Hello!" }],
     stream: true,
     max_completion_tokens: 512,
@@ -246,7 +247,7 @@ All parameters are passed through to DigitalOcean unchanged. The proxy only inje
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `model` | string | Model ID — e.g. `deepseek-3.2`, `minimax-m2.5` |
+| `model` | string | Model ID — e.g. `deepseek-v4-pro`, `qwen3-coder-flash` |
 | `messages` | array | Conversation history. Each item has `role` (`system` / `user` / `assistant`) and `content` |
 
 ### Optional — commonly used
